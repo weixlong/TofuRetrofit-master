@@ -11,6 +11,7 @@ import com.pudding.tofu.widget.Bean;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
+import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -62,6 +63,11 @@ public class PostImpl {
                     if(response != null && response.request() != null) {
                         callback.onFailed(response.request().url().toString(), Bean.getDefaultErrorResources(),e instanceof SocketTimeoutException);
                     } else {
+                        try {
+                            System.err.println("Tofu onError : "+response.body().string());
+                        } catch (IOException e1) {
+                            e1.printStackTrace();
+                        }
                         callback.onFailed(url,Bean.getDefaultErrorResources(),e instanceof SocketTimeoutException);
                     }
                 }
