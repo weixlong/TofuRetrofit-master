@@ -123,9 +123,9 @@ public class HttpImpl<Result> implements PostInterface, PostResultCallback {
     }
 
     @Override
-    public void onFailed(String response,boolean isOutTime) {
+    public void onFailed(String url,String response,boolean isOutTime) {
         if(TextUtils.isEmpty(label)) {
-            TofuBus.get().executePostErrorMethod(response, response,isOutTime);
+            TofuBus.get().executePostErrorMethod(url, response,isOutTime);
         } else {
             TofuBus.get().executePostErrorMethod(label, response,isOutTime);
         }

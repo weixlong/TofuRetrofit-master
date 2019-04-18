@@ -7,6 +7,7 @@ import com.lzy.okgo.callback.StringCallback;
 import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
 import com.pudding.tofu.callback.PostResultCallback;
+import com.pudding.tofu.widget.Bean;
 
 import org.apache.http.conn.ConnectTimeoutException;
 
@@ -45,12 +46,12 @@ public class PostImpl {
                             System.err.println("Tofu : "+response.request().url().toString()+"   "+e);
                         }
                         if (callback != null) {
-                            callback.onFailed(response.request().url().toString(),false);
+                            callback.onFailed(response.request().url().toString(),s,false);
                         }
                     }
                 } else {
                     if (callback != null) {
-                        callback.onFailed(response.request().url().toString(),false);
+                        callback.onFailed(response.request().url().toString(),s,false);
                     }
                 }
             }
@@ -59,9 +60,9 @@ public class PostImpl {
             public void onError(Call call, Response response, Exception e) {
                 if (callback != null ) {
                     if(response != null && response.request() != null) {
-                        callback.onFailed(response.request().url().toString(),e instanceof SocketTimeoutException);
+                        callback.onFailed(response.request().url().toString(), Bean.getDefaultErrorResources(),e instanceof SocketTimeoutException);
                     } else {
-                        callback.onFailed(url,e instanceof SocketTimeoutException);
+                        callback.onFailed(url,Bean.getDefaultErrorResources(),e instanceof SocketTimeoutException);
                     }
                 }
             }

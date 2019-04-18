@@ -19,5 +19,5 @@ public interface PostResultCallback {
      * 请求失败
      * @param response
      */
-    void onFailed(String response,boolean isOutTime);
+    void onFailed(String url,String response,boolean isOutTime);
 }
