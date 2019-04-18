@@ -406,32 +406,32 @@ public class RefreshManager<Result> {
     }
 
     @postError(refresh_post_label)
-    public synchronized void onPostRefreshLoadFailed(String label, Boolean isOutTime) {
+    public synchronized void onPostRefreshLoadFailed(String result, Boolean isOutTime) {
         isCallFailedBeforeOutTime = true;
         RefreshBuilder builder = (RefreshBuilder) layout.getTag(0x008889659);
         if (layout.isRefreshing()) {
             layout.finishRefresh();
             if (!TextUtils.isEmpty(this.label)) {
-                TofuBusRx.get().executeRefreshFailedRetention(this.label, builder, isOutTime);
+                TofuBusRx.get().executeRefreshFailedRetention(this.label, builder,result, isOutTime);
             } else {
-                TofuBusRx.get().executeRefreshFailedRetention(refreshUrl, builder, isOutTime);
+                TofuBusRx.get().executeRefreshFailedRetention(refreshUrl, builder,result, isOutTime);
             }
         } else if (layout.isLoading()) {
             pre();
             layout.finishLoadmore();
             if (!TextUtils.isEmpty(this.label)) {
-                TofuBusRx.get().executeLoadFailedRetention(this.label, builder, isOutTime);
+                TofuBusRx.get().executeLoadFailedRetention(this.label, builder,result, isOutTime);
             } else {
-                TofuBusRx.get().executeLoadFailedRetention(refreshUrl, builder, isOutTime);
+                TofuBusRx.get().executeLoadFailedRetention(refreshUrl, builder,result, isOutTime);
             }
         } else if (builder.getLayout() != null && (builder.getLayout().isRefreshing() || builder.getLayout().isLoading())) {
             if (builder.getLayout().isRefreshing()) {
                 builder.getLayout().finishRefresh();
-                TofuBusRx.get().executeRefreshFailedRetention(builder.getLabel(), builder, isOutTime);
+                TofuBusRx.get().executeRefreshFailedRetention(builder.getLabel(), builder,result, isOutTime);
             } else if (builder.getLayout().isLoading()) {
                 builder.getLayout().finishLoadmore();
                 pre();
-                TofuBusRx.get().executeLoadFailedRetention(builder.getLabel(), builder, isOutTime);
+                TofuBusRx.get().executeLoadFailedRetention(builder.getLabel(), builder,result, isOutTime);
             }
         }
     }
