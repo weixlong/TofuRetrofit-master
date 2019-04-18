@@ -10,6 +10,7 @@ import com.pudding.tofu.model.TofuConfig;
 import com.pudding.tofu.retention.post;
 import com.pudding.tofu.retention.postError;
 import com.pudding.tofu.rx.tofu.TofuBusRx;
+import com.pudding.tofu.widget.Bean;
 import com.pudding.tofu.widget.CollectUtil;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
@@ -406,7 +407,7 @@ public class RefreshManager<Result> {
     }
 
     @postError(refresh_post_label)
-    public synchronized void onPostRefreshLoadFailed(String result, Boolean isOutTime) {
+    public synchronized void onPostRefreshLoadFailed(String url,String result, Boolean isOutTime) {
         isCallFailedBeforeOutTime = true;
         RefreshBuilder builder = (RefreshBuilder) layout.getTag(0x008889659);
         if (layout.isRefreshing()) {
@@ -457,7 +458,7 @@ public class RefreshManager<Result> {
                         isOutTimeBack = true;
                         OkGo.getInstance().cancelTag(refreshUrl);
                         if (!isCallFailedBeforeOutTime) {
-                            onPostRefreshLoadFailed(refresh_post_label, isOutTimeBack);
+                            onPostRefreshLoadFailed(refresh_post_label, Bean.getDefaultErrorResources(), isOutTimeBack);
                         }
                         isOutTimeBack = false;
                     }
