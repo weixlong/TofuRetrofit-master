@@ -13,9 +13,9 @@ public class Bean {
 
     public boolean success;
 
-    public static String getDefaultErrorResources(){
+    public static String getDefaultErrorResources(int code){
         Bean bean = new Bean();
-        bean.msg = "8100";
+        bean.msg = String.valueOf(code);
         bean.success = false;
         return JSON.toJSONString(bean);
     }

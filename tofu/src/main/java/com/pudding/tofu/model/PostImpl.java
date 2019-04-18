@@ -61,14 +61,9 @@ public class PostImpl {
             public void onError(Call call, Response response, Exception e) {
                 if (callback != null ) {
                     if(response != null && response.request() != null) {
-                        callback.onFailed(response.request().url().toString(), Bean.getDefaultErrorResources(),e instanceof SocketTimeoutException);
+                        callback.onFailed(response.request().url().toString(), Bean.getDefaultErrorResources(response.code()),e instanceof SocketTimeoutException);
                     } else {
-                        try {
-                            System.err.println("Tofu onError : "+response.body().string());
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                        callback.onFailed(url,Bean.getDefaultErrorResources(),e instanceof SocketTimeoutException);
+                        callback.onFailed(url,Bean.getDefaultErrorResources(8100),e instanceof SocketTimeoutException);
                     }
                 }
             }

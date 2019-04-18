@@ -458,7 +458,7 @@ public class RefreshManager<Result> {
                         isOutTimeBack = true;
                         OkGo.getInstance().cancelTag(refreshUrl);
                         if (!isCallFailedBeforeOutTime) {
-                            onPostRefreshLoadFailed(refresh_post_label, Bean.getDefaultErrorResources(), isOutTimeBack);
+                            onPostRefreshLoadFailed(refresh_post_label, Bean.getDefaultErrorResources(8101), isOutTimeBack);
                         }
                         isOutTimeBack = false;
                     }
