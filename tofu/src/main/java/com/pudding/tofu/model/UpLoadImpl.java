@@ -139,7 +139,7 @@ public class UpLoadImpl<Result> implements PostInterface,UploadCallback {
     public void unBind() {
         closeDialog();
         if(upload != null){
-            upload.cencalUpLoad();
+            upload.cancelUpLoad();
         }
         upload = null;
     }
@@ -222,12 +222,12 @@ public class UpLoadImpl<Result> implements PostInterface,UploadCallback {
     }
 
     @Override
-    public void onError(String url,boolean isOutTime) {
+    public void onError(String url,String msg,boolean isOutTime) {
         closeDialog();
         if(TextUtils.isEmpty(label)) {
-            TofuBus.get().executeUploadErrorMethod(url, url,isOutTime);
+            TofuBus.get().executeUploadErrorMethod(url, url,msg,isOutTime);
         } else {
-            TofuBus.get().executeUploadErrorMethod(label, url,isOutTime);
+            TofuBus.get().executeUploadErrorMethod(label, url,msg,isOutTime);
         }
     }
 

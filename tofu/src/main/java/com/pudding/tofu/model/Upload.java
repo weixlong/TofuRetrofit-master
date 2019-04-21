@@ -6,6 +6,7 @@ import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
 import com.lzy.okgo.request.PostRequest;
 import com.pudding.tofu.callback.UploadCallback;
+import com.pudding.tofu.widget.Bean;
 import com.pudding.tofu.widget.CollectUtil;
 
 import java.io.File;
@@ -64,7 +65,7 @@ public class Upload {
                     if(response.isSuccessful()) {
                         uploadCallback.onResponse(s);
                     } else {
-                        uploadCallback.onError(response.request().url().toString(),false);
+                        uploadCallback.onError(response.request().url().toString(), Bean.getDefaultErrorResources(response.code()),false);
                     }
                 }
             }
@@ -72,14 +73,14 @@ public class Upload {
             @Override
             public void onError(Call call, Response response, Exception e) {
                 if (uploadCallback != null) {
-                    uploadCallback.onError(response.request().url().toString(),e instanceof SocketTimeoutException);
+                    uploadCallback.onError(response.request().url().toString(),Bean.getDefaultErrorResources(response.code()),e instanceof SocketTimeoutException);
                 }
             }
         });
 
     }
 
-    protected void cencalUpLoad(){
+    protected void cancelUpLoad(){
         OkGo.getInstance().cancelTag("upLoadFile");
     }
 }

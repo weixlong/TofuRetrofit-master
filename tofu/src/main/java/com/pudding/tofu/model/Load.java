@@ -4,6 +4,7 @@ import com.lzy.okgo.OkGo;
 import com.lzy.okgo.callback.FileCallback;
 import com.lzy.okgo.model.HttpHeaders;
 import com.pudding.tofu.callback.LoadFileCallback;
+import com.pudding.tofu.widget.Bean;
 import com.pudding.tofu.widget.CollectUtil;
 
 import java.io.File;
@@ -38,7 +39,7 @@ public class Load {
                     }
                 } else {
                     if (loadFileCallback != null) {
-                        loadFileCallback.onError(response.request().url().toString(),false);
+                        loadFileCallback.onError(response.request().url().toString(),Bean.getDefaultErrorResources(response.code()),false);
                     }
                 }
             }
@@ -53,7 +54,7 @@ public class Load {
             @Override
             public void onError(Call call, Response response, Exception e) {
                 if (loadFileCallback != null) {
-                    loadFileCallback.onError(response.request().url().toString(),e instanceof SocketTimeoutException);
+                    loadFileCallback.onError(response.request().url().toString(), Bean.getDefaultErrorResources(response.code()),e instanceof SocketTimeoutException);
                 }
             }
         });

@@ -141,11 +141,11 @@ public class LoadImpl implements PostInterface, LoadFileCallback {
     }
 
     @Override
-    public void onError(String url,boolean isOutTime) {
+    public void onError(String url,String msg,boolean isOutTime) {
         if(TextUtils.isEmpty(label)) {
-            TofuBus.get().executeLoadFileErrorMethod(url, url,isOutTime);
+            TofuBus.get().executeLoadFileErrorMethod(url, url,msg,isOutTime);
         } else {
-            TofuBus.get().executeLoadFileErrorMethod(label, url,isOutTime);
+            TofuBus.get().executeLoadFileErrorMethod(label, url,msg,isOutTime);
         }
         closeDialog();
     }
