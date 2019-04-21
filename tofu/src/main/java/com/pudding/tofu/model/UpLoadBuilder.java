@@ -310,6 +310,15 @@ public class UpLoadBuilder<Result> implements UnBind {
         return this;
     }
 
+    /**
+     * 清除参数
+     * @return
+     */
+    public UpLoadBuilder clearParam(){
+        params.clear();
+        return this;
+    }
+
 
     /**
      * 上传路径

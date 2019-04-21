@@ -1,6 +1,7 @@
 package com.pudding.tofu.model;
 
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.widget.Toast;
 
 /**
@@ -21,7 +22,9 @@ public class ToastBuilder implements UnBind {
      */
     public void tell(@NonNull String text) {
         try {
-            Toast.makeText(TofuKnife.app, text, Toast.LENGTH_SHORT).show();
+            if(!TextUtils.isEmpty(text)) {
+                Toast.makeText(TofuKnife.app, text, Toast.LENGTH_SHORT).show();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -34,7 +37,9 @@ public class ToastBuilder implements UnBind {
      */
     public void tall(@NonNull String text) {
         try {
-            Toast.makeText(TofuKnife.app, text, Toast.LENGTH_LONG).show();
+            if(!TextUtils.isEmpty(text)) {
+                Toast.makeText(TofuKnife.app, text, Toast.LENGTH_LONG).show();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

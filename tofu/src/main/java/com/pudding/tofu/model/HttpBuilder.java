@@ -220,6 +220,17 @@ public class HttpBuilder<Result> implements UnBind {
         return this;
     }
 
+
+    /**
+     * 清除参数
+     * @return
+     */
+    public HttpBuilder clearParam(){
+        params.clear();
+        return this;
+    }
+
+
     /**
      * 是否有该参数
      * @param key

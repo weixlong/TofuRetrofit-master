@@ -146,6 +146,16 @@ public class LoadFileBuilder implements UnBind{
         return this;
     }
 
+
+    /**
+     * 清除参数
+     * @return
+     */
+    public LoadFileBuilder clearParam(){
+        params.clear();
+        return this;
+    }
+
     /**
      * 移除参数
      * @param key
