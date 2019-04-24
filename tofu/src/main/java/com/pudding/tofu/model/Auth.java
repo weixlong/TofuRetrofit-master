@@ -81,6 +81,15 @@ public class Auth {
         return this;
     }
 
+    /**
+     * 重新加载Auth
+     * @return
+     */
+    public Auth reloadAuth(){
+        loadAuth();
+        return this;
+    }
+
 
     /**
      * 无需调用
@@ -91,17 +100,25 @@ public class Auth {
                 resultCallBack.onAuth(auth,setKey);
             }
         } else {
-            OkGo.post(url).execute(new StringCallback() {
-                @Override
-                public void onSuccess(String s, Call call, Response response) {
-                    if (callBack != null) {
-                        auth = callBack.parseAuth(s);
-                        if(resultCallBack != null) {
-                            resultCallBack.onAuth(auth,setKey);
-                        }
+            loadAuth();
+        }
+    }
+
+
+    /**
+     * 加载auth
+     */
+    private void loadAuth(){
+        OkGo.post(url).execute(new StringCallback() {
+            @Override
+            public void onSuccess(String s, Call call, Response response) {
+                if (callBack != null) {
+                    auth = callBack.parseAuth(s);
+                    if(resultCallBack != null) {
+                        resultCallBack.onAuth(auth,setKey);
                     }
                 }
-            });
-        }
+            }
+        });
     }
 }
