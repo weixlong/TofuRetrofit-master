@@ -77,6 +77,9 @@ public class LoadFileBuilder implements UnBind{
     private String label;
 
 
+    private boolean isAutoAuth;
+
+
     protected LoadFileBuilder() {
     }
 
@@ -87,9 +90,9 @@ public class LoadFileBuilder implements UnBind{
         checkParamsAvailable();
         if(AndPermission.hasPermission(context,Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (impl == null) {
-                impl = new LoadImpl(url, destPath, userCookies,heads,params, label);
+                impl = new LoadImpl(url, destPath, userCookies,heads,params, label,isAutoAuth);
             } else {
-                impl.setLoadImpl(url, destPath,userCookies,heads, params, label);
+                impl.setLoadImpl(url, destPath,userCookies,heads, params, label,isAutoAuth);
             }
 
             if (isShowDialog) {
@@ -121,6 +124,15 @@ public class LoadFileBuilder implements UnBind{
      */
     public LoadFileBuilder label(String label) {
         this.label = label;
+        return this;
+    }
+
+    /**
+     * 自动配置auth
+     * @return
+     */
+    public LoadFileBuilder autoAuth(){
+        isAutoAuth = true;
         return this;
     }
 
@@ -271,6 +283,7 @@ public class LoadFileBuilder implements UnBind{
         params.clear();
         heads.clear();
         userCookies.clear();
+        isAutoAuth = false;
         context = null;
     }
 }

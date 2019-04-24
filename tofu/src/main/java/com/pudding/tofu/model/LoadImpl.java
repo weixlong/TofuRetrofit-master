@@ -5,6 +5,7 @@ import android.text.TextUtils;
 
 import com.lzy.okgo.model.HttpHeaders;
 import com.pudding.tofu.R;
+import com.pudding.tofu.callback.AuthResultCallBack;
 import com.pudding.tofu.callback.LoadFileCallback;
 import com.pudding.tofu.callback.PostInterface;
 import com.pudding.tofu.widget.LoadDialog;
@@ -59,30 +60,56 @@ public class LoadImpl implements PostInterface, LoadFileCallback {
 
     private LoadResult result = new LoadResult();
 
-    protected LoadImpl(String url, String destPath,List<Cookie> cookies,HttpHeaders heads, Map<String, String> params, String label) {
+    private boolean isAutoAuth;
+
+    protected LoadImpl(String url, String destPath, List<Cookie> cookies, HttpHeaders heads, Map<String, String> params, String label, boolean isAutoAuth) {
         this.url = url;
         this.destPath = destPath;
         this.params = params;
         this.label = label;
         this.cookies = cookies;
         this.heads = heads;
+        this.isAutoAuth = isAutoAuth;
     }
 
-    protected void setLoadImpl(String url, String destPath,List<Cookie> cookies,HttpHeaders heads, Map<String, String> params, String label) {
+    protected void setLoadImpl(String url, String destPath, List<Cookie> cookies, HttpHeaders heads, Map<String, String> params, String label, boolean isAutoAuth) {
         this.url = url;
         this.destPath = destPath;
         this.params = params;
         this.cookies = cookies;
         this.heads = heads;
         this.label = label;
+        this.isAutoAuth = isAutoAuth;
     }
 
-    @Override
-    public void execute() {
+
+    private AuthResultCallBack authCallBack = new AuthResultCallBack() {
+        @Override
+        public void onAuth(String auth, String key) {
+            heads.put(key, auth);
+            exe();
+        }
+    };
+
+
+    /**
+     * 执行
+     */
+    private void exe() {
         if(load == null){
             load = new Load();
         }
         load.onLoad(url,destPath,this,cookies,heads,params);
+    }
+
+
+    @Override
+    public void execute() {
+        if(isAutoAuth){
+            TofuConfig.auth().resultCallBack(authCallBack).post();
+        } else {
+            exe();
+        }
     }
 
     @Override

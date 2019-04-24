@@ -86,6 +86,8 @@ public class UpLoadBuilder<Result> implements UnBind {
 
     private String label;
 
+    private boolean isAutoAuth;
+
     protected UpLoadBuilder() {
     }
 
@@ -96,9 +98,9 @@ public class UpLoadBuilder<Result> implements UnBind {
         checkParamsAvailable();
         if (AndPermission.hasPermission(context, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (upLoad == null) {
-                upLoad = new UpLoadImpl(url, params, heads,cookies, uploadFiles, aClass, isCompress, context, label);
+                upLoad = new UpLoadImpl(url, params, heads,cookies, uploadFiles, aClass, isCompress, context, label,isAutoAuth);
             } else {
-                upLoad.setUpLoadImpl(url, params, heads,cookies, uploadFiles, aClass, isCompress, context, label);
+                upLoad.setUpLoadImpl(url, params, heads,cookies, uploadFiles, aClass, isCompress, context, label,isAutoAuth);
             }
 
             if (isShowDialog) {
@@ -123,6 +125,16 @@ public class UpLoadBuilder<Result> implements UnBind {
      */
     public UpLoadBuilder label(String label) {
         this.label = label;
+        return this;
+    }
+
+
+    /**
+     * 自动配置auth
+     * @return
+     */
+    public UpLoadBuilder autoAuth(){
+        isAutoAuth = true;
         return this;
     }
 
@@ -363,6 +375,7 @@ public class UpLoadBuilder<Result> implements UnBind {
         isCompress = false;
         context = null;
         url = "";
+        isAutoAuth = false;
     }
 
 

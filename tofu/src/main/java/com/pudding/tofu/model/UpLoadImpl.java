@@ -10,6 +10,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONException;
 import com.lzy.okgo.model.HttpHeaders;
 import com.pudding.tofu.R;
+import com.pudding.tofu.callback.AuthResultCallBack;
 import com.pudding.tofu.callback.PostInterface;
 import com.pudding.tofu.callback.UploadCallback;
 import com.pudding.tofu.widget.LoadDialog;
@@ -89,13 +90,15 @@ public class UpLoadImpl<Result> implements PostInterface,UploadCallback {
 
    private LoadResult result = new LoadResult();
 
+   private boolean isAutoAuth;
+
     protected UpLoadImpl() {
     }
 
     protected UpLoadImpl(String url, Map<String, String> params, HttpHeaders heads,List<Cookie> cookies,
                          List<UpLoadBuilder.UploadFile> uploadFiles,
                          Class<Result> aClass, boolean compress, Context context,
-                         String label) {
+                         String label,boolean isAutoAuth) {
         this.url = url;
         this.params = params;
         this.heads = heads;
@@ -105,12 +108,13 @@ public class UpLoadImpl<Result> implements PostInterface,UploadCallback {
         this.context = context;
         this.cookies = cookies;
         this.label = label;
+        this.isAutoAuth = isAutoAuth;
     }
 
     protected void setUpLoadImpl(String url, Map<String, String> params, HttpHeaders heads,List<Cookie> cookies,
                                  List<UpLoadBuilder.UploadFile> uploadFiles,
                                  Class<Result> aClass, boolean compress,
-                                 Context context, String label) {
+                                 Context context, String label,boolean isAutoAuth) {
         this.url = url;
         this.params = params;
         this.heads = heads;
@@ -120,11 +124,24 @@ public class UpLoadImpl<Result> implements PostInterface,UploadCallback {
         this.context = context;
         this.label = label;
         this.cookies  = cookies;
+        this.isAutoAuth = isAutoAuth;
     }
 
 
-    @Override
-    public void execute() {
+
+    private AuthResultCallBack authCallBack = new AuthResultCallBack() {
+        @Override
+        public void onAuth(String auth, String key) {
+            heads.put(key, auth);
+            exe();
+        }
+    };
+
+
+    /**
+     * 执行
+     */
+    private void exe() {
         if(upload == null){
             upload = new Upload();
         }
@@ -135,12 +152,23 @@ public class UpLoadImpl<Result> implements PostInterface,UploadCallback {
         }
     }
 
+
+    @Override
+    public void execute() {
+        if(isAutoAuth){
+            TofuConfig.auth().resultCallBack(authCallBack).post();
+        } else {
+            exe();
+        }
+    }
+
     @Override
     public void unBind() {
         closeDialog();
         if(upload != null){
             upload.cancelUpLoad();
         }
+        isAutoAuth = false;
         upload = null;
     }
 
