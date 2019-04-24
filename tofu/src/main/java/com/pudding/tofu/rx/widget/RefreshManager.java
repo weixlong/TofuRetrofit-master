@@ -68,7 +68,7 @@ public class RefreshManager<Result> {
 
     protected OnRefreshLoadmoreListener callback = new RefreshCallback();
 
-    private boolean refreshAgo, loadAgo;
+    private boolean refreshAgo, loadAgo,isLoading,isRefreshing;
 
     private String label;
 
@@ -364,6 +364,8 @@ public class RefreshManager<Result> {
         @Override
         public void onAuthError(Call call, Response response, Exception e) {
             Tofu.tu().tell("授权失败");
+            isLoading = false;
+            isRefreshing = false;
             if(layout != null){
                 layout.finishLoadmore();
                 layout.finishRefresh();
@@ -376,8 +378,11 @@ public class RefreshManager<Result> {
      * 执行
      */
     private void exe() {
-        if(refreshLayout == null) return;
-        if(refreshLayout.isLoading()) {
+        if(refreshLayout == null){
+            Tofu.log().e("refreshLayout == null");
+            return;
+        }
+        if(isLoading) {
             if (loadAgo) {
                 RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
                 if (!TextUtils.isEmpty(label)) {
@@ -395,7 +400,7 @@ public class RefreshManager<Result> {
                 }
             }
         }
-        if(refreshLayout.isRefreshing()){
+        if(isRefreshing){
             if (refreshAgo) {
                 RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
                 if (!TextUtils.isEmpty(label)) {
@@ -420,6 +425,8 @@ public class RefreshManager<Result> {
     public class RefreshCallback implements OnRefreshLoadmoreListener {
         @Override
         public void onLoadmore(RefreshLayout refreshlayout) {
+            isLoading = true;
+            isRefreshing = false;
             RefreshManager.this.refreshLayout = refreshLayout;
             if(isAutoAuth){
                 TofuConfig.auth().resultCallBack(authCallBack).post();
@@ -431,6 +438,8 @@ public class RefreshManager<Result> {
 
         @Override
         public void onRefresh(RefreshLayout refreshlayout) {
+            isLoading = false;
+            isRefreshing = true;
             RefreshManager.this.refreshLayout = refreshLayout;
             if(isAutoAuth){
                 TofuConfig.auth().resultCallBack(authCallBack).post();
@@ -444,6 +453,8 @@ public class RefreshManager<Result> {
     public synchronized void onPostRefreshLoadResult(Result result) {
         isCallFailedBeforeOutTime = true;
         RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
+        isLoading = false;
+        isRefreshing = false;
         if (layout.isRefreshing()) {
             layout.finishRefresh();
             if (!TextUtils.isEmpty(label)) {
@@ -473,6 +484,8 @@ public class RefreshManager<Result> {
     @postError(refresh_post_label)
     public synchronized void onPostRefreshLoadFailed(String url,String result, Boolean isOutTime) {
         isCallFailedBeforeOutTime = true;
+        isLoading = false;
+        isRefreshing = false;
         RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
         if (layout.isRefreshing()) {
             layout.finishRefresh();
