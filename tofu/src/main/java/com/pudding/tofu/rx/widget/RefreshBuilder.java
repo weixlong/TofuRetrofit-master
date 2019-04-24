@@ -56,14 +56,14 @@ public class RefreshBuilder<Result> implements UnBindRx {
      * @return
      */
     public synchronized RefreshBuilder layout(@NonNull SmartRefreshLayout layout) {
-        Object tag = layout.getTag(R.id.smart_id);
+        Long tag = (Long) layout.getTag(R.id.smart_id);
         if (tag == null || !smartMap.containsKey(tag)) {
             this.layout = layout;
             layout.setTag(R.id.smart_id, System.currentTimeMillis()+position);
             manager = new RefreshManager(layout);
             layout.setOnRefreshLoadmoreListener(manager.callback);
             layout.setTag(R.id.smart_builder_id,this);
-            smartMap.put((Long) tag, new Smart(manager, layout));
+            smartMap.put(tag, new Smart(manager, layout));
             position++;
         } else {
             Smart smart = smartMap.get(tag);
