@@ -29,6 +29,8 @@ import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
 import io.reactivex.schedulers.Schedulers;
+import okhttp3.Call;
+import okhttp3.Response;
 
 /**
  * Created by wxl on 2018/8/6 0006.
@@ -355,6 +357,15 @@ public class RefreshManager<Result> {
         public void onAuth(String auth, String key) {
             addHead(key, auth);
             exe();
+        }
+
+        @Override
+        public void onAuthError(Call call, Response response, Exception e) {
+            Tofu.tu().tell("授权失败");
+            if(layout != null){
+                layout.finishLoadmore();
+                layout.finishRefresh();
+            }
         }
     };
 

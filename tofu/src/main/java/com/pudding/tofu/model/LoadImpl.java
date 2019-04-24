@@ -15,7 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import okhttp3.Call;
 import okhttp3.Cookie;
+import okhttp3.Response;
 
 /**
  * Created by wxl on 2018/6/24 0024.
@@ -88,6 +90,12 @@ public class LoadImpl implements PostInterface, LoadFileCallback {
         public void onAuth(String auth, String key) {
             heads.put(key, auth);
             exe();
+        }
+
+        @Override
+        public void onAuthError(Call call, Response response, Exception e) {
+            Tofu.tu().tell("授权失败");
+            closeDialog();
         }
     };
 
