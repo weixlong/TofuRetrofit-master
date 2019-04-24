@@ -386,9 +386,9 @@ public class RefreshManager<Result> {
                 startCountOutTime();
                 buildParam();
                 if (result == null) {
-                    Tofu.post(POST_KEY).put(params).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).put(params).addHead(headers).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
                 } else {
-                    Tofu.post(POST_KEY).put(params).result(result).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).put(params).addHead(headers).result(result).url(refreshUrl).label(refresh_post_label).execute();
                 }
             }
         }
@@ -405,9 +405,9 @@ public class RefreshManager<Result> {
                 buildParam();
                 toFirst();
                 if (result == null) {
-                    Tofu.post(POST_KEY).put(params).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).result(String.class).put(params).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
                 } else {
-                    Tofu.post(POST_KEY).put(params).result(result).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).result(result).put(params).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
                 }
             }
         }
