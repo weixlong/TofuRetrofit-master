@@ -56,21 +56,31 @@ public class RefreshBuilder<Result> implements UnBindRx {
      * @return
      */
     public synchronized RefreshBuilder layout(@NonNull SmartRefreshLayout layout) {
-        Long tag = (Long) layout.getTag(R.id.smart_id);
-        if (tag == null || !smartMap.containsKey(tag)) {
-            this.layout = layout;
-            layout.setTag(R.id.smart_id, System.currentTimeMillis()+position);
-            manager = new RefreshManager(layout);
-            layout.setOnRefreshLoadmoreListener(manager.callback);
-            layout.setTag(R.id.smart_builder_id,this);
-            smartMap.put(tag, new Smart(manager, layout));
-            position++;
+        Object tag = layout.getTag(R.id.smart_id);
+        if (tag == null) {
+            onlayout(layout);
         } else {
-            Smart smart = smartMap.get(tag);
-            this.layout = layout;
-            manager = smart.manager;
+            Long t = (Long) tag;
+            if(!smartMap.containsKey(t)){
+                onlayout(layout);
+            } else {
+                Smart smart = smartMap.get(tag);
+                this.layout = layout;
+                manager = smart.manager;
+            }
         }
         return this;
+    }
+
+    private void onlayout(SmartRefreshLayout layout) {
+        this.layout = layout;
+        Long tag = System.currentTimeMillis() + position;
+        layout.setTag(R.id.smart_id, tag);
+        manager = new RefreshManager(layout);
+        layout.setOnRefreshLoadmoreListener(manager.callback);
+        layout.setTag(R.id.smart_builder_id, this);
+        smartMap.put(tag, new Smart(manager, layout));
+        position++;
     }
 
     /**
@@ -106,9 +116,10 @@ public class RefreshBuilder<Result> implements UnBindRx {
 
     /**
      * 自动配置auth {@link com.pudding.tofu.model.TofuConfig} 中配置解析
+     *
      * @return
      */
-    public RefreshBuilder autoAuth(){
+    public RefreshBuilder autoAuth() {
         checkParamAvailable();
         isAutoAuth = true;
         manager.setAutoAuth(isAutoAuth);
@@ -154,11 +165,12 @@ public class RefreshBuilder<Result> implements UnBindRx {
 
     /**
      * 添加请求头
+     *
      * @param key
      * @param value
      * @return
      */
-    public RefreshBuilder addHead(String key,String value){
+    public RefreshBuilder addHead(String key, String value) {
         checkParamAvailable();
         manager.addHead(key, value);
         return this;
@@ -218,9 +230,10 @@ public class RefreshBuilder<Result> implements UnBindRx {
 
     /**
      * 清除缓存参数
+     *
      * @return
      */
-    public RefreshBuilder clearCache(){
+    public RefreshBuilder clearCache() {
         checkParamAvailable();
         manager.clearCache();
         return this;
@@ -228,14 +241,13 @@ public class RefreshBuilder<Result> implements UnBindRx {
 
     /**
      * 获得当前的pageKey
+     *
      * @return
      */
-    public String getPageKey(){
+    public String getPageKey() {
         checkParamAvailable();
         return manager.getPageKey();
     }
-
-
 
 
     /**
@@ -415,9 +427,10 @@ public class RefreshBuilder<Result> implements UnBindRx {
 
     /**
      * 获取缓存参数
+     *
      * @return
      */
-    public Map<String, String> chache(){
+    public Map<String, String> chache() {
         checkParamAvailable();
         return manager.getCache();
     }
@@ -435,7 +448,7 @@ public class RefreshBuilder<Result> implements UnBindRx {
      */
     public void unBind(SmartRefreshLayout layout) {
         Object tag = layout.getTag(R.id.smart_id);
-        if(tag != null && smartMap.containsKey(tag)){
+        if (tag != null && smartMap.containsKey(tag)) {
             Smart remove = smartMap.remove(tag);
             if (remove != null && remove.manager != null) {
                 remove.manager.destroy();
@@ -451,7 +464,7 @@ public class RefreshBuilder<Result> implements UnBindRx {
             manager.destroy();
             manager = null;
         }
-        if(layout != null) {
+        if (layout != null) {
             Object tag = layout.getTag(R.id.smart_id);
             if (tag != null && smartMap.containsKey(tag)) {
                 smartMap.remove(tag);
