@@ -376,7 +376,7 @@ public class RefreshManager<Result> {
     private void exe() {
         if(layout.isLoading()) {
             if (loadAgo) {
-                RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
+                RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
                 if (!TextUtils.isEmpty(label)) {
                     TofuBusRx.get().executeLoadBeforeRetention(label, layout, builder);
                 } else {
@@ -394,7 +394,7 @@ public class RefreshManager<Result> {
         }
         if(layout.isRefreshing()){
             if (refreshAgo) {
-                RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
+                RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
                 if (!TextUtils.isEmpty(label)) {
                     TofuBusRx.get().executeRefreshBeforeRetention(label, layout, builder);
                 } else {
@@ -438,7 +438,7 @@ public class RefreshManager<Result> {
     @post(refresh_post_label)
     public synchronized void onPostRefreshLoadResult(Result result) {
         isCallFailedBeforeOutTime = true;
-        RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
+        RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
         if (layout.isRefreshing()) {
             layout.finishRefresh();
             if (!TextUtils.isEmpty(label)) {
@@ -468,7 +468,7 @@ public class RefreshManager<Result> {
     @postError(refresh_post_label)
     public synchronized void onPostRefreshLoadFailed(String url,String result, Boolean isOutTime) {
         isCallFailedBeforeOutTime = true;
-        RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
+        RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
         if (layout.isRefreshing()) {
             layout.finishRefresh();
             if (!TextUtils.isEmpty(this.label)) {

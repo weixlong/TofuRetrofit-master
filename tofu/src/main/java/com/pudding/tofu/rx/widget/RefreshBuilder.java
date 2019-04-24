@@ -62,7 +62,7 @@ public class RefreshBuilder<Result> implements UnBindRx {
             layout.setTag(R.id.smart_id, System.currentTimeMillis()+position);
             manager = new RefreshManager(layout);
             layout.setOnRefreshLoadmoreListener(manager.callback);
-            layout.setTag(R.id.smart_id,this);
+            layout.setTag(R.id.smart_builder_id,this);
             smartMap.put((Long) tag, new Smart(manager, layout));
             position++;
         } else {
