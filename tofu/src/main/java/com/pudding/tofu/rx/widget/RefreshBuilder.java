@@ -460,16 +460,16 @@ public class RefreshBuilder<Result> implements UnBindRx {
 
     @Override
     public void unBind() {
-        if (manager != null) {
-            manager.destroy();
-            manager = null;
-        }
         if (layout != null) {
-            Object tag = layout.getTag(R.id.smart_id);
+            Long tag = (Long) layout.getTag(R.id.smart_id);
             if (tag != null && smartMap.containsKey(tag)) {
-                smartMap.remove(tag);
+                Smart remove = smartMap.remove(tag);
+                if (remove.manager != null) {
+                    remove.manager.destroy();
+                    remove.manager = null;
+                    remove.layout = null;
+                }
             }
-            layout = null;
         }
     }
 }
