@@ -8,6 +8,7 @@ import android.text.TextUtils;
 
 import com.lzy.okgo.model.HttpHeaders;
 import com.lzy.okgo.model.HttpParams;
+import com.pudding.tofu.callback.AuthResultCallBack;
 import com.pudding.tofu.callback.BaseInterface;
 import com.pudding.tofu.callback.PostInterface;
 import com.pudding.tofu.widget.CollectUtil;
@@ -95,16 +96,27 @@ public class HttpBuilder<Result> implements UnBind {
      */
     private String label;
 
-    protected HttpBuilder() {
+    /**
+     * 标记
+     */
+    private String key;
+
+    private boolean isAutoAuth;
+
+    protected HttpBuilder(@NonNull String key) {
+        this.key = key;
     }
 
     /**
      * 清除参数
      */
-    protected void clear() {
+    public void clear() {
         params.clear();
+        headers.clear();
+        userCookies.clear();
         context = null;
         isShowDialog = false;
+        isAutoAuth = false;
         resultClass = null;
         diyDialog = null;
     }
@@ -129,8 +141,8 @@ public class HttpBuilder<Result> implements UnBind {
      * @param param
      * @return
      */
-    public HttpBuilder put(boolean isPut,@NonNull String key, @NonNull String param) {
-        if(isPut) {
+    public HttpBuilder put(boolean isPut, @NonNull String key, @NonNull String param) {
+        if (isPut) {
             params.put(key, param);
         }
         return this;
@@ -141,7 +153,7 @@ public class HttpBuilder<Result> implements UnBind {
      * @param cookie
      * @return
      */
-    public HttpBuilder addCookie(@NonNull Cookie cookie){
+    public HttpBuilder addCookie(@NonNull Cookie cookie) {
         userCookies.add(cookie);
         return this;
     }
@@ -151,7 +163,7 @@ public class HttpBuilder<Result> implements UnBind {
      * @param cookies
      * @return
      */
-    public HttpBuilder addCookie(@NonNull List<Cookie> cookies){
+    public HttpBuilder addCookie(@NonNull List<Cookie> cookies) {
         userCookies.addAll(cookies);
         return this;
     }
@@ -161,7 +173,7 @@ public class HttpBuilder<Result> implements UnBind {
      * @param
      * @return
      */
-    public HttpBuilder addCookie(@NonNull String name,@NonNull String value){
+    public HttpBuilder addCookie(@NonNull String name, @NonNull String value) {
         Cookie.Builder builder = new Cookie.Builder();
         Cookie cookie = builder.name(name).value(value).domain(name).build();
         userCookies.add(cookie);
@@ -170,32 +182,35 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 添加参数
+     *
      * @param params
      * @return
      */
-    public HttpBuilder put(@NonNull Map<String,String> params){
+    public HttpBuilder put(@NonNull Map<String, String> params) {
         this.params.put(params);
         return this;
     }
 
     /**
      * 设置请求头
+     *
      * @param key
      * @param head
      * @return
      */
-    public HttpBuilder addHead(@NonNull String key,@NonNull String head){
-        headers.put(key,head);
+    public HttpBuilder addHead(@NonNull String key, @NonNull String head) {
+        headers.put(key, head);
         return this;
     }
 
 
     /**
      * 添加请求头
+     *
      * @param headers
      * @return
      */
-    public HttpBuilder addHead(@NonNull HttpHeaders headers){
+    public HttpBuilder addHead(@NonNull HttpHeaders headers) {
         this.headers.put(headers);
         return this;
     }
@@ -203,19 +218,21 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 移除请求头
+     *
      * @param key
      * @return
      */
-    public HttpBuilder removeHead(@NonNull String key){
+    public HttpBuilder removeHead(@NonNull String key) {
         headers.remove(key);
         return this;
     }
 
     /**
      * 请求请求头
+     *
      * @return
      */
-    public HttpBuilder clearHead(){
+    public HttpBuilder clearHead() {
         headers.clear();
         return this;
     }
@@ -223,9 +240,10 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 清除参数
+     *
      * @return
      */
-    public HttpBuilder clearParam(){
+    public HttpBuilder clearParam() {
         params.clear();
         return this;
     }
@@ -233,30 +251,33 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 是否有该参数
+     *
      * @param key
      * @return
      */
-    public boolean isContains(@NonNull String key){
+    public boolean isContains(@NonNull String key) {
         return this.params.urlParamsMap.containsKey(key);
     }
 
     /**
      * 移除参数
+     *
      * @param key
      * @return
      */
-    public HttpBuilder remove(@NonNull String key){
+    public HttpBuilder remove(@NonNull String key) {
         this.params.remove(key);
         return this;
     }
 
     /**
      * 移除参数
+     *
      * @param key
      * @return
      */
-    public HttpBuilder remove(boolean isRemove,@NonNull String key){
-        if(isRemove) {
+    public HttpBuilder remove(boolean isRemove, @NonNull String key) {
+        if (isRemove) {
             this.params.remove(key);
         }
         return this;
@@ -265,6 +286,7 @@ public class HttpBuilder<Result> implements UnBind {
     /**
      * 请求链接
      * 如果没有设置label ,则label为url
+     *
      * @param url
      * @return
      */
@@ -275,6 +297,7 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 设置label，如果没有设置则label为url
+     *
      * @param label
      * @return
      */
@@ -306,19 +329,31 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 设置自定义对话框
+     *
      * @param dialog
      * @return
      */
-    public HttpBuilder setDialog(@NonNull AlertDialog dialog){
+    public HttpBuilder setDialog(@NonNull AlertDialog dialog) {
         this.diyDialog = dialog;
+        return this;
+    }
+
+
+    /**
+     * 自动加载配置auth {@link com.pudding.tofu.model.TofuConfig} 中配置解析
+     *
+     * @return
+     */
+    public HttpBuilder autoAuth() {
+        isAutoAuth = true;
         return this;
     }
 
     /**
      * 停止当前请求
      */
-    public void stopPost(){
-        if(http != null){
+    public void stopPost() {
+        if (http != null) {
             ((HttpImpl) http).stopPost();
         }
     }
@@ -329,6 +364,7 @@ public class HttpBuilder<Result> implements UnBind {
      * <p>
      * 需要手动管理缓存
      * </p>
+     *
      * @return
      */
     public CacheBuilder cache(@NonNull String cacheKey) {
@@ -341,15 +377,16 @@ public class HttpBuilder<Result> implements UnBind {
 
     /**
      * 填充缓存区参数
+     *
      * @param cache
      * @return
      */
-    private HttpBuilder cacheIntoPost(HashMap<String,String> cache){
+    private HttpBuilder cacheIntoPost(HashMap<String, String> cache) {
         params.clear();
         Iterator<Map.Entry<String, String>> iterator = cache.entrySet().iterator();
-        while (iterator.hasNext()){
-            Map.Entry<String,String> next = iterator.next();
-            params.put(next.getKey(),next.getValue());
+        while (iterator.hasNext()) {
+            Map.Entry<String, String> next = iterator.next();
+            params.put(next.getKey(), next.getValue());
         }
         return this;
     }
@@ -361,6 +398,25 @@ public class HttpBuilder<Result> implements UnBind {
      */
     public synchronized void execute() {
         checkExecuteAvailable();
+        if (isAutoAuth) {
+            TofuConfig.auth().resultCallBack(authCallBack).post();
+        } else {
+            exe();
+        }
+
+    }
+
+
+    private AuthResultCallBack authCallBack = new AuthResultCallBack() {
+        @Override
+        public void onAuth(String auth, String key) {
+            addHead(key, auth);
+            exe();
+        }
+    };
+
+
+    private void exe() {
         Observable.create(new ObservableOnSubscribe<PostInterface>() {
             @Override
             public synchronized void subscribe(ObservableEmitter<PostInterface> e) throws Exception {
@@ -375,25 +431,28 @@ public class HttpBuilder<Result> implements UnBind {
                 });
     }
 
+
     /**
      * 获取请求句柄
+     *
      * @param e
      */
-    private synchronized void obtainHttp(ObservableEmitter<PostInterface> e){
+    private synchronized void obtainHttp(ObservableEmitter<PostInterface> e) {
         if (http == null) {
-            http = new HttpImpl(userCookies,headers,params,url, resultClass,label);
+            http = new HttpImpl(userCookies, headers, params, url, resultClass, label);
         } else {
-            ((HttpImpl) http).setHttpImpl(userCookies,headers,params, url, resultClass,label);
+            ((HttpImpl) http).setHttpImpl(userCookies, headers, params, url, resultClass, label);
         }
         e.onNext(http);
     }
 
     /**
      * 执行请求
+     *
      * @param http
      */
-    private synchronized void realExecute(PostInterface http){
-        if(AndPermission.hasPermission(context, Manifest.permission.INTERNET)) {
+    private synchronized void realExecute(PostInterface http) {
+        if (AndPermission.hasPermission(context, Manifest.permission.INTERNET)) {
             if (isShowDialog) {
                 http.showDialog(context);
             } else {
@@ -420,7 +479,7 @@ public class HttpBuilder<Result> implements UnBind {
      */
     public class CacheBuilder {
 
-        private HashMap<String ,HashMap<String,String>>  cache = new HashMap();
+        private HashMap<String, HashMap<String, String>> cache = new HashMap();
 
         private String cacheKey;
 
@@ -430,39 +489,42 @@ public class HttpBuilder<Result> implements UnBind {
 
         /**
          * 添加一个缓存区
+         *
          * @param key
          */
-        private void add(String key){
-            if(TextUtils.isEmpty(key)){
+        private void add(String key) {
+            if (TextUtils.isEmpty(key)) {
                 System.out.println("you has nothing register post retention , cache name set default cache!");
                 cacheKey = "cache";
             } else {
                 cacheKey = key;
             }
-            if(!cache.containsKey(cacheKey)) {
+            if (!cache.containsKey(cacheKey)) {
                 cache.put(cacheKey, new HashMap<String, String>());
             }
         }
 
         /**
          * 缓存参数
+         *
          * @param key
          * @param value
          * @return
          */
-        public CacheBuilder put(@NonNull String key,@NonNull String value){
-            cache.get(cacheKey).put(key,value);
+        public CacheBuilder put(@NonNull String key, @NonNull String value) {
+            cache.get(cacheKey).put(key, value);
             return this;
         }
 
         /**
          * 缓存参数
+         *
          * @param key
          * @param value
          * @return
          */
-        public CacheBuilder put(boolean isPut,@NonNull String key,@NonNull String value){
-            if(isPut) {
+        public CacheBuilder put(boolean isPut, @NonNull String key, @NonNull String value) {
+            if (isPut) {
                 cache.get(cacheKey).put(key, value);
             }
             return this;
@@ -471,10 +533,11 @@ public class HttpBuilder<Result> implements UnBind {
 
         /**
          * 移除参数
+         *
          * @param key
          * @return
          */
-        public CacheBuilder remove(@NonNull String key){
+        public CacheBuilder remove(@NonNull String key) {
             cache.get(cacheKey).remove(key);
             return this;
         }
@@ -482,11 +545,12 @@ public class HttpBuilder<Result> implements UnBind {
 
         /**
          * 移除参数
+         *
          * @param key
          * @return
          */
-        public CacheBuilder remove(boolean isRemove,@NonNull String key){
-            if(isRemove) {
+        public CacheBuilder remove(boolean isRemove, @NonNull String key) {
+            if (isRemove) {
                 cache.get(cacheKey).remove(key);
             }
             return this;
@@ -494,50 +558,54 @@ public class HttpBuilder<Result> implements UnBind {
 
         /**
          * 是否有该参数
+         *
          * @param key
          * @return
          */
-        public boolean isContains(@NonNull String key){
-           return !TextUtils.isEmpty(cache.get(cacheKey).get(key));
+        public boolean isContains(@NonNull String key) {
+            return !TextUtils.isEmpty(cache.get(cacheKey).get(key));
         }
 
         /**
          * 获取缓冲区参数
+         *
          * @return
          */
-        public HashMap<String,String> getCache(){
+        public HashMap<String, String> getCache() {
             return cache.get(cacheKey);
         }
 
         /**
          * 获取String参数值
+         *
          * @param key
          * @return
          */
-        public String getValue(@NonNull String key){
+        public String getValue(@NonNull String key) {
             return cache.get(cacheKey).get(key);
         }
 
         /**
          * 参数填充到post中 , 原post中的参数将会被清空后再填充
+         *
          * @return
          */
-        public HttpBuilder beCache(){
-           return cacheIntoPost(cache.get(cacheKey));
+        public HttpBuilder beCache() {
+            return cacheIntoPost(cache.get(cacheKey));
         }
 
         /**
          * 清空缓存区参数
          * <p>
-         *     key为全类名
+         * key为全类名
          * </p>
          */
-        public CacheBuilder clear(){
-            if(TextUtils.isEmpty(cacheKey)){
+        public CacheBuilder clear() {
+            if (TextUtils.isEmpty(cacheKey)) {
                 cacheKey = "cache";
             }
             HashMap<String, String> map = cache.get(cacheKey);
-            if(!CollectUtil.isEmpty(map)){
+            if (!CollectUtil.isEmpty(map)) {
                 map.clear();
             }
             return this;
@@ -549,10 +617,17 @@ public class HttpBuilder<Result> implements UnBind {
         for (BaseInterface unBind : unBinds) {
             unBind.unBind();
         }
+        if (diyDialog != null) {
+            diyDialog.dismiss();
+        }
+        isAutoAuth = false;
         params.clear();
         headers.clear();
         unBinds.clear();
         userCookies.clear();
+        clear();
         cacheBuilder = null;
+        HttpBuilderFactory.postCache.remove(key);
     }
+
 }

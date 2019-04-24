@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 
+import com.pudding.tofu.R;
 import com.pudding.tofu.rx.callback.UnBindRx;
 import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 
@@ -28,6 +29,8 @@ public class RefreshBuilder<Result> implements UnBindRx {
     private String label, url;
 
     private int position;
+
+    private boolean isAutoAuth;
 
     private class Smart {
         RefreshManager manager;
@@ -53,13 +56,13 @@ public class RefreshBuilder<Result> implements UnBindRx {
      * @return
      */
     public synchronized RefreshBuilder layout(@NonNull SmartRefreshLayout layout) {
-        Object tag = layout.getTag(0x0059595959);
+        Object tag = layout.getTag(R.id.smart_id);
         if (tag == null || !smartMap.containsKey(tag)) {
             this.layout = layout;
-            layout.setTag(0x0059595959, System.currentTimeMillis()+position);
+            layout.setTag(R.id.smart_id, System.currentTimeMillis()+position);
             manager = new RefreshManager(layout);
             layout.setOnRefreshLoadmoreListener(manager.callback);
-            layout.setTag(0x008889659,this);
+            layout.setTag(R.id.smart_id,this);
             smartMap.put((Long) tag, new Smart(manager, layout));
             position++;
         } else {
@@ -97,6 +100,18 @@ public class RefreshBuilder<Result> implements UnBindRx {
     public RefreshBuilder outTime(@IntRange(from = 0) int outTime) {
         checkParamAvailable();
         manager.setOutTime(outTime);
+        return this;
+    }
+
+
+    /**
+     * 自动配置auth {@link com.pudding.tofu.model.TofuConfig} 中配置解析
+     * @return
+     */
+    public RefreshBuilder autoAuth(){
+        checkParamAvailable();
+        isAutoAuth = true;
+        manager.setAutoAuth(isAutoAuth);
         return this;
     }
 
@@ -419,7 +434,7 @@ public class RefreshBuilder<Result> implements UnBindRx {
      * @param layout
      */
     public void unBind(SmartRefreshLayout layout) {
-        Object tag = layout.getTag(0x0059595959);
+        Object tag = layout.getTag(R.id.smart_id);
         if(tag != null && smartMap.containsKey(tag)){
             Smart remove = smartMap.remove(tag);
             if (remove != null && remove.manager != null) {
@@ -437,7 +452,7 @@ public class RefreshBuilder<Result> implements UnBindRx {
             manager = null;
         }
         if(layout != null) {
-            Object tag = layout.getTag(0x0059595959);
+            Object tag = layout.getTag(R.id.smart_id);
             if (tag != null && smartMap.containsKey(tag)) {
                 smartMap.remove(tag);
             }

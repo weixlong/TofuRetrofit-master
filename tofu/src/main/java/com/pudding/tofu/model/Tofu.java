@@ -112,13 +112,13 @@ public class Tofu {
      * 主程中执行回调方法
      * @return
      */
-    public static HttpBuilder post() {
+    public static HttpBuilder post(@NonNull String key) {
         HttpBuilderFactory factory = (HttpBuilderFactory) builders.get("HttpBuilderFactory");
         if (factory == null) {
             factory = HttpBuilderFactory.get();
             builders.put("HttpBuilderFactory", factory);
         }
-        return factory.build();
+        return factory.build(key);
     }
 
     /**

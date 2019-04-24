@@ -1,6 +1,9 @@
 package com.pudding.tofu.model;
 
+import android.support.annotation.NonNull;
+
 import java.lang.ref.WeakReference;
+import java.util.HashMap;
 
 /**
  * Created by wxl on 2018/6/22 0022.
@@ -9,42 +12,28 @@ import java.lang.ref.WeakReference;
 
 public class HttpBuilderFactory implements UnBind {
 
-    private static WeakReference<HttpBuilderFactory> weakReference ;
-
-    private HttpBuilder httpBuilder;
-
-    private HttpBuilderFactory() {
-        weakReference = new WeakReference<>(this);
+    private static class Factor {
+        private static HttpBuilderFactory factory = new HttpBuilderFactory();
     }
+
+
+    protected static HashMap<String, HttpBuilder> postCache = new HashMap<>();
+
 
     protected static HttpBuilderFactory get() {
-        synchronized (HttpBuilderFactory.class){
-            if (weakReference == null || weakReference.get() == null) {
-                synchronized (HttpBuilderFactory.class) {
-                    return new HttpBuilderFactory();
-                }
-            }
-        }
-        return weakReference.get();
+        return Factor.factory;
     }
 
-    protected HttpBuilder build() {
-        if(httpBuilder == null){
-            httpBuilder = new HttpBuilder();
+    protected HttpBuilder build(@NonNull String key) {
+        if (!postCache.containsKey(key)) {
+            postCache.put(key, new HttpBuilder(key));
         }
-        httpBuilder.clear();
-        return httpBuilder;
+        return postCache.get(key);
     }
 
     @Override
     public void unbind() {
-        if(httpBuilder != null) {
-            httpBuilder.unbind();
-            httpBuilder = null;
-        }
-        if(weakReference != null){
-            weakReference.clear();
-            weakReference = null;
-        }
+
     }
+
 }

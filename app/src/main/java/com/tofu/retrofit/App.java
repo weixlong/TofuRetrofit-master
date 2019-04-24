@@ -2,6 +2,7 @@ package com.tofu.retrofit;
 
 import android.app.Application;
 
+import com.pudding.tofu.model.TofuConfig;
 import com.pudding.tofu.model.TofuKnife;
 
 /**

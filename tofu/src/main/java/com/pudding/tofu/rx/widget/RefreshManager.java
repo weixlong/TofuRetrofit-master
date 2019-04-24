@@ -5,6 +5,8 @@ import android.text.TextUtils;
 
 import com.lzy.okgo.OkGo;
 import com.lzy.okgo.model.HttpHeaders;
+import com.pudding.tofu.R;
+import com.pudding.tofu.callback.AuthResultCallBack;
 import com.pudding.tofu.model.Tofu;
 import com.pudding.tofu.model.TofuConfig;
 import com.pudding.tofu.retention.post;
@@ -58,6 +60,8 @@ public class RefreshManager<Result> {
 
     private final String refresh_post_label = "refresh_post_label";
 
+    private final String POST_KEY = "TOFU_REFRESH_MANAGER_SMART_POST_KEY";
+
     private String refresh_label = refresh_post_label;
 
     protected OnRefreshLoadmoreListener callback = new RefreshCallback();
@@ -68,6 +72,7 @@ public class RefreshManager<Result> {
 
     private static boolean isOutTimeBack = false, isCallFailedBeforeOutTime = false;
 
+    private boolean isAutoAuth;
     /**
      * 布局注入
      *
@@ -90,6 +95,15 @@ public class RefreshManager<Result> {
      */
     public void setOutTime(int outTime) {
         this.outTime = outTime;
+    }
+
+
+    /**
+     * 设置加载auth
+     * @param autoAuth
+     */
+    public void setAutoAuth(boolean autoAuth) {
+        isAutoAuth = autoAuth;
     }
 
     /**
@@ -227,7 +241,7 @@ public class RefreshManager<Result> {
     protected void postPre() {
         pre();
         buildParam();
-        Tofu.post().put(params).result(result).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
+        Tofu.post(POST_KEY).put(params).result(result).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
     }
 
     /**
@@ -236,7 +250,7 @@ public class RefreshManager<Result> {
     protected void onPostNext() {
         next();
         buildParam();
-        Tofu.post().put(params).result(result).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
+        Tofu.post(POST_KEY).put(params).result(result).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
     }
 
     /**
@@ -244,7 +258,7 @@ public class RefreshManager<Result> {
      */
     protected void onPost() {
         buildParam();
-        Tofu.post().put(params).result(result).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
+        Tofu.post(POST_KEY).put(params).result(result).addHead(headers).url(refreshUrl).label(refresh_post_label).execute();
     }
 
     /**
@@ -333,45 +347,79 @@ public class RefreshManager<Result> {
     }
 
 
-    public class RefreshCallback implements OnRefreshLoadmoreListener {
+    /**
+     * 授权回调
+     */
+    private AuthResultCallBack authCallBack = new AuthResultCallBack() {
         @Override
-        public void onLoadmore(RefreshLayout refreshlayout) {
+        public void onAuth(String auth, String key) {
+            addHead(key, auth);
+            exe();
+        }
+    };
+
+
+    /**
+     * 执行
+     */
+    private void exe() {
+        if(layout.isLoading()) {
             if (loadAgo) {
-                RefreshBuilder builder = (RefreshBuilder) layout.getTag(0x008889659);
+                RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
                 if (!TextUtils.isEmpty(label)) {
-                    TofuBusRx.get().executeLoadBeforeRetention(label, refreshlayout, builder);
+                    TofuBusRx.get().executeLoadBeforeRetention(label, layout, builder);
                 } else {
-                    TofuBusRx.get().executeLoadBeforeRetention(refreshUrl, refreshlayout, builder);
+                    TofuBusRx.get().executeLoadBeforeRetention(refreshUrl, layout, builder);
                 }
             } else {
                 startCountOutTime();
                 buildParam();
                 if (result == null) {
-                    Tofu.post().put(params).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).put(params).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
                 } else {
-                    Tofu.post().put(params).result(result).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).put(params).result(result).url(refreshUrl).label(refresh_post_label).execute();
                 }
             }
         }
-
-        @Override
-        public void onRefresh(RefreshLayout refreshlayout) {
+        if(layout.isRefreshing()){
             if (refreshAgo) {
-                RefreshBuilder builder = (RefreshBuilder) layout.getTag(0x008889659);
+                RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
                 if (!TextUtils.isEmpty(label)) {
-                    TofuBusRx.get().executeRefreshBeforeRetention(label, refreshlayout, builder);
+                    TofuBusRx.get().executeRefreshBeforeRetention(label, layout, builder);
                 } else {
-                    TofuBusRx.get().executeRefreshBeforeRetention(refreshUrl, refreshlayout, builder);
+                    TofuBusRx.get().executeRefreshBeforeRetention(refreshUrl, layout, builder);
                 }
             } else {
                 startCountOutTime();
                 buildParam();
                 toFirst();
                 if (result == null) {
-                    Tofu.post().put(params).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).put(params).result(String.class).url(refreshUrl).label(refresh_post_label).execute();
                 } else {
-                    Tofu.post().put(params).result(result).url(refreshUrl).label(refresh_post_label).execute();
+                    Tofu.post(POST_KEY).put(params).result(result).url(refreshUrl).label(refresh_post_label).execute();
                 }
+            }
+        }
+    }
+
+
+    public class RefreshCallback implements OnRefreshLoadmoreListener {
+        @Override
+        public void onLoadmore(RefreshLayout refreshlayout) {
+            if(isAutoAuth){
+                TofuConfig.auth().resultCallBack(authCallBack).post();
+            } else {
+                exe();
+            }
+
+        }
+
+        @Override
+        public void onRefresh(RefreshLayout refreshlayout) {
+            if(isAutoAuth){
+                TofuConfig.auth().resultCallBack(authCallBack).post();
+            } else {
+                exe();
             }
         }
     }
@@ -379,7 +427,7 @@ public class RefreshManager<Result> {
     @post(refresh_post_label)
     public synchronized void onPostRefreshLoadResult(Result result) {
         isCallFailedBeforeOutTime = true;
-        RefreshBuilder builder = (RefreshBuilder) layout.getTag(0x008889659);
+        RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
         if (layout.isRefreshing()) {
             layout.finishRefresh();
             if (!TextUtils.isEmpty(label)) {
@@ -409,7 +457,7 @@ public class RefreshManager<Result> {
     @postError(refresh_post_label)
     public synchronized void onPostRefreshLoadFailed(String url,String result, Boolean isOutTime) {
         isCallFailedBeforeOutTime = true;
-        RefreshBuilder builder = (RefreshBuilder) layout.getTag(0x008889659);
+        RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_id);
         if (layout.isRefreshing()) {
             layout.finishRefresh();
             if (!TextUtils.isEmpty(this.label)) {
@@ -479,7 +527,9 @@ public class RefreshManager<Result> {
         page = 1;
         pageKey = "pageNo";
         outTime = -1;
+        isAutoAuth = false;
         unBind();
+        Tofu.post(POST_KEY).unbind();
     }
 
 

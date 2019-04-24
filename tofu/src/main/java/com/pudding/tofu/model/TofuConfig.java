@@ -8,8 +8,8 @@ package com.pudding.tofu.model;
 public class TofuConfig {
 
 
-
-    private TofuConfig(){}
+    private TofuConfig() {
+    }
 
     private static int post_out_time = 10000;
 
@@ -20,21 +20,26 @@ public class TofuConfig {
 
     /**
      * 是否debug
+     *
      * @param isDebug
      */
-    protected static void debug(boolean isDebug){
+    protected static void debug(boolean isDebug) {
         debug = isDebug;
     }
 
-    protected static boolean isDebug(){
+    protected static boolean isDebug() {
         return debug;
     }
 
-    public static void setPostConnectTimeout(int time){
+    public static void setPostConnectTimeout(int time) {
         post_out_time = time;
     }
 
     public static int getConnectTimeout() {
         return post_out_time;
+    }
+
+    public static Auth auth() {
+        return Auth.AuthMaker.auth;
     }
 }
