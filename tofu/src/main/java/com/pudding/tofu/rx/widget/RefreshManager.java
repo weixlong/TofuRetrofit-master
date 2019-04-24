@@ -75,6 +75,8 @@ public class RefreshManager<Result> {
     private static boolean isOutTimeBack = false, isCallFailedBeforeOutTime = false;
 
     private boolean isAutoAuth;
+
+    private RefreshLayout refreshLayout;
     /**
      * 布局注入
      *
@@ -374,7 +376,8 @@ public class RefreshManager<Result> {
      * 执行
      */
     private void exe() {
-        if(layout.isLoading()) {
+        if(refreshLayout == null) return;
+        if(refreshLayout.isLoading()) {
             if (loadAgo) {
                 RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
                 if (!TextUtils.isEmpty(label)) {
@@ -392,7 +395,7 @@ public class RefreshManager<Result> {
                 }
             }
         }
-        if(layout.isRefreshing()){
+        if(refreshLayout.isRefreshing()){
             if (refreshAgo) {
                 RefreshBuilder builder = (RefreshBuilder) layout.getTag(R.id.smart_builder_id);
                 if (!TextUtils.isEmpty(label)) {
@@ -417,6 +420,7 @@ public class RefreshManager<Result> {
     public class RefreshCallback implements OnRefreshLoadmoreListener {
         @Override
         public void onLoadmore(RefreshLayout refreshlayout) {
+            RefreshManager.this.refreshLayout = refreshLayout;
             if(isAutoAuth){
                 TofuConfig.auth().resultCallBack(authCallBack).post();
             } else {
@@ -427,6 +431,7 @@ public class RefreshManager<Result> {
 
         @Override
         public void onRefresh(RefreshLayout refreshlayout) {
+            RefreshManager.this.refreshLayout = refreshLayout;
             if(isAutoAuth){
                 TofuConfig.auth().resultCallBack(authCallBack).post();
             } else {
