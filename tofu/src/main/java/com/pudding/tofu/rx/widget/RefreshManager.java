@@ -427,7 +427,7 @@ public class RefreshManager<Result> {
         public void onLoadmore(RefreshLayout refreshlayout) {
             isLoading = true;
             isRefreshing = false;
-            RefreshManager.this.refreshLayout = refreshLayout;
+            RefreshManager.this.refreshLayout = refreshlayout;
             if(isAutoAuth){
                 TofuConfig.auth().resultCallBack(authCallBack).post();
             } else {
@@ -440,7 +440,7 @@ public class RefreshManager<Result> {
         public void onRefresh(RefreshLayout refreshlayout) {
             isLoading = false;
             isRefreshing = true;
-            RefreshManager.this.refreshLayout = refreshLayout;
+            RefreshManager.this.refreshLayout = refreshlayout;
             if(isAutoAuth){
                 TofuConfig.auth().resultCallBack(authCallBack).post();
             } else {
