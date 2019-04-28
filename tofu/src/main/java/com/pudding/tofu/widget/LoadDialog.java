@@ -2,6 +2,7 @@ package com.pudding.tofu.widget;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.ColorStateList;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
@@ -9,6 +10,7 @@ import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.shapes.RoundRectShape;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
@@ -82,6 +84,9 @@ public class LoadDialog extends ProgressDialog {
         contentLayout.addView(imageView,imageParam);
 
         ProgressBar bar = new ProgressBar(getContext());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            bar.setIndeterminateTintList(ColorStateList.valueOf(ContextCompat.getColor(getContext(),R.color.white)));
+        }
         RelativeLayout.LayoutParams barParam = new RelativeLayout.LayoutParams(dipToPX(getContext(),40), dipToPX(getContext(),40));
         barParam.addRule(CENTER_IN_PARENT);
         bar.setLayoutParams(barParam);
