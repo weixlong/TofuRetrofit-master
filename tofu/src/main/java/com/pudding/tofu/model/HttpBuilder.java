@@ -330,6 +330,16 @@ public class HttpBuilder<Result> implements UnBind {
     }
 
     /**
+     * 上下文
+     * @param context
+     * @return
+     */
+    public HttpBuilder context(Context context){
+        this.context = context;
+        return this;
+    }
+
+    /**
      * 设置自定义对话框
      *
      * @param dialog
@@ -469,7 +479,9 @@ public class HttpBuilder<Result> implements UnBind {
             if (isShowDialog) {
                 http.showDialog(context);
             } else {
-                ((HttpImpl) http).showDialog(diyDialog);
+                if(diyDialog != null) {
+                    ((HttpImpl) http).showDialog(diyDialog);
+                }
             }
             http.execute();
             unBinds.add(http);
